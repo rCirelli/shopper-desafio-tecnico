@@ -1,14 +1,18 @@
 'use client';
 import { UploadSimple, X } from '@phosphor-icons/react';
-import { useCallback, useRef, useState } from 'react';
+import { FormEvent, useCallback, useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import * as Papa from 'papaparse';
+import axios from 'axios';
+import { ProductCSV } from '@/types/Product';
 
 function FileInputForm({ setData }: { setData: Function }) {
   const [fileName, setFileName] = useState('');
+
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFileName(acceptedFiles[0].name);
   }, []);
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
       'text/csv': ['.csv'],
@@ -27,12 +31,22 @@ function FileInputForm({ setData }: { setData: Function }) {
     }
   }
 
-  function handleValidate() {
+  function handleValidate(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     if (fileInput.current?.files) {
       Papa.parse(fileInput.current?.files[0], {
         header: true,
-        complete: function (result) {
-          setData(result.data);
+        complete: function ({ data }: { data: ProductCSV[] }) {
+          const jsonFile = data.map((item: ProductCSV) => ({
+            code: item.product_code,
+            newPrice: item.new_price,
+          }));
+
+          axios.post('/api/validate', jsonFile, {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
         },
       });
     }
@@ -43,10 +57,12 @@ function FileInputForm({ setData }: { setData: Function }) {
 
   return (
     <form
-      className="w-3/5"
-      action="/api/batch-update-prices"
-      encType="multipart/form-data"
-      method="post"
+      className="w-full"
+      // action="/api/validate"
+      // encType="multipart/form-data"
+      // method="post"
+      action="form"
+      onSubmit={handleValidate}
     >
       <div className="bg-white shadow-md rounded-md px-8 py-6 mb-4 flex flex-col gap-4 justify-between h-80">
         <div
@@ -93,9 +109,9 @@ function FileInputForm({ setData }: { setData: Function }) {
             !fileName ? btnDisabledStyle : btnEnabledStyle
           } text-white font-semibold py-2 px-4 rounded-md text-center`}
           disabled={!fileName}
-          // type="submit"
-          type="button"
-          onClick={handleValidate}
+          type="submit"
+          // type="button"
+          // onClick={handleValidate}
         >
           VALIDAR
         </button>
