@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "init:db": "docker-compose up -d",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -17,6 +18,7 @@
     "axios": "^1.4.0",
     "eslint": "8.40.0",
     "eslint-config-next": "13.4.2",
+    "multer": "^1.4.5-lts.1",
     "next": "13.4.2",
     "papaparse": "^5.4.1",
     "postcss": "8.4.23",
@@ -27,6 +29,7 @@
     "typescript": "5.0.4"
   },
   "devDependencies": {
+    "@types/multer": "^1.4.7",
     "@types/papaparse": "^5.3.7"
   }
 }
