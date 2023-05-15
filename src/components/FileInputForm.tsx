@@ -46,7 +46,9 @@ function FileInputForm({ setData }: { setData: Function }) {
             headers: {
               'Content-Type': 'application/json',
             },
-          }).then((response) => setData(response.data));
+          })
+          .then((response) => setData(response.data))
+          .catch((err) => alert(err.response.data));
         },
       });
     }

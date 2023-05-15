@@ -1,8 +1,10 @@
-export default class HttpException extends Error {
-  public status: number;
+import { ApiError } from "next/dist/server/api-utils";
 
-  constructor(status: number, message: string) {
-    super(message);
-    this.status = status;
+export default class HttpException extends ApiError {
+  readonly statusCode: number;
+
+  constructor(statusCode: number, message: string) {
+    super(statusCode, message);
+    this.statusCode = statusCode;
   }
 }

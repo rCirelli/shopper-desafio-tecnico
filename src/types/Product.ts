@@ -8,9 +8,10 @@ export type ProductCSV = {
 export interface Product {
   code: string | number;
   name: string;
-  price: string | number;
+  price: number;
 }
 
-export interface UpdatedProduct extends Product {
-  newPrice: string;
+export interface ProductToUpdate extends Product {
+  newPrice: number;
+  errors: string[];
 }

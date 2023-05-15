@@ -1,10 +1,11 @@
-import { UpdatedProduct } from '@/types/Product';
+import { ProductToUpdate } from '@/types/Product';
 
-function PricesUpdateTable({ data }: { data: UpdatedProduct[] }) {
+function PricesUpdateTable({ data }: { data: ProductToUpdate[] }) {
   const tableHeaders = ['Código', 'Nome', 'Preço Atual', 'Novo Preço'];
 
   const evenStyle = 'bg-white border-b';
   const oddStyle = 'border-b bg-gray-50';
+  const currencyFormatter = (value: number) => value.toLocaleString("pt-BR", {style:"currency", currency:"BRL"})
 
   return (
     <div className="w-full relative overflow-x-auto shadow-md rounded-md">
@@ -37,8 +38,8 @@ function PricesUpdateTable({ data }: { data: UpdatedProduct[] }) {
               >
                 {product.name}
               </th>
-              <td className="px-6 py-4">{product.price}</td>
-              <td className="px-6 py-4">{product.newPrice}</td>
+              <td className="px-6 py-4">{currencyFormatter(product.price)}</td>
+              <td className="px-6 py-4">{currencyFormatter(product.newPrice)}</td>
             </tr>
           ))}
         </tbody>

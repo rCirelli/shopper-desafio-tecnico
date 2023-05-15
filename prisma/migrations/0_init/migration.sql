@@ -21,5 +21,8 @@ CREATE TABLE `products` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
+ALTER TABLE `packs` ADD CONSTRAINT `packs_ibfk_1` FOREIGN KEY (`pack_id`) REFERENCES `products`(`code`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+-- AddForeignKey
 ALTER TABLE `packs` ADD CONSTRAINT `packs_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products`(`code`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
