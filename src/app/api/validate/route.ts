@@ -5,11 +5,7 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   const priceUpdates = await request.json();
 
-  const result = await validateBatchUpdatePrices(priceUpdates);
+  const { result, error } = await validateBatchUpdatePrices(priceUpdates);
 
-  if (result instanceof HttpException) {
-    return new NextResponse(result.message, { status: result.statusCode });
-  }
-
-  return NextResponse.json(result);
+  return NextResponse.json({ products: result, error });
 }

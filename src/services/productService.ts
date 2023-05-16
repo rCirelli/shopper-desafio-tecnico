@@ -24,44 +24,33 @@ export async function batchUpdatePrices(priceUpdateRequest: ProductToUpdate[]) {
 }
 
 export async function validateBatchUpdatePrices(priceUpdateRequest: ProductToUpdate[]) {
-  try {
-    const productDataWithNewPrice = await getProductsAndAppendNewPrice(priceUpdateRequest);
-    return productDataWithNewPrice;
-  } catch (error) {
-    return error;
-  }
+  const productDataWithNewPrice = await getProductsAndAppendNewPrice(priceUpdateRequest);
+  return productDataWithNewPrice;
 }
 
 export async function getProductsAndAppendNewPrice(priceUpdateRequest: ProductToUpdate[]) {
-  const productsToUpdate: Array<Promise<ProductToUpdate>> = [];
-
+  const productsToUpdate: Promise<ProductToUpdate>[] = [];
+  let hasErrors = false;
   priceUpdateRequest.forEach((priceUpdate) => {
     const { code, newPrice } = validateRequest(priceUpdate);
 
-    const productPromise = new Promise(async (resolve, reject) => {
-      try {
-        const product = await findProduct(code) as unknown as Product;
-        resolve({ ...product, newPrice });
-      } catch (error) {
-        reject(error);
+    const productPromise = new Promise(async (resolve) => {
+      const product = await findProduct(code);
+      if (product.errors && product.errors.length > 0) {
+        hasErrors = true;
       }
-
+      resolve({ ...product, newPrice });
     });
 
     productsToUpdate.push(productPromise as Promise<ProductToUpdate>);
   });
 
-  const result = await Promise.all(productsToUpdate).catch((error) => error);
+  const result = await Promise.all(productsToUpdate);
 
-  if (result instanceof HttpException) {
-    throw result;
-  }
-
-  return result;
+  return { result, error: hasErrors };
 }
 
 export async function findProduct(code: Product['code']): Promise<Partial<ProductToUpdate>> {
-  // try {
   const product = await prisma.product.findUnique({
     where: {
       code: code,
@@ -72,8 +61,9 @@ export async function findProduct(code: Product['code']): Promise<Partial<Produc
       salePrice: true,
     }
   });
+
   if (!product) {
-    return { code: Number(code), errors: ['product not found'] }
+    return { code: Number(code), errors: ['produto não encontrado'] }
   }
 
   return {
@@ -81,7 +71,4 @@ export async function findProduct(code: Product['code']): Promise<Partial<Produc
     name: product.name,
     price: Number(product.salePrice),
   };
-  // } catch (error: any) {
-  //   throw new HttpException(404, `product: ${code}, not found`);
-  // }
 }
