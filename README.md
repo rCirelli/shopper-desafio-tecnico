@@ -1,34 +1,78 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Desafio Técnico Fullstack - Shopper
 
-## Getting Started
+Este projeto foi feito com o [Next.js](https://nextjs.org/)
 
-First, run the development server:
+## Para rodar localmente
+
+Primeiro, crie o arquivo ```.env``` na raiz do projeto, utilizando como base o ```.env.example```:
+
+```bash
+# arquivo .env
+
+# não esqueça de colocar a mesma senha do banco de dados
+# no arquivo docker-compose e no .env
+
+DATABASE_URL="mysql://root:my_secret_password@localhost:3306/app_db"
+```
+```bash
+# arquivo docker-compose.yml
+
+version: '3'
+
+services:
+  db:
+    image: mysql:8.0-debian
+    container_name: db
+    environment:
+      MYSQL_ROOT_PASSWORD: my_secret_password
+      MYSQL_DATABASE: app_db
+      MYSQL_USER: db_user
+      MYSQL_PASSWORD: db_user_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+volumes:
+  dbdata:
+```
+
+Após isso, instale as dependências do projeto:
 
 ```bash
 npm run dev
-# or
+# ou
 yarn dev
-# or
+# ou
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Depois, inicie o container do banco de dados com o comando:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run db:init
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+Aguarde a inicialização do container, então execute o servidor do Next:
+```bash
+npm run dev
+```
 
-## Learn More
+Abra o endereço [http://localhost:3000](http://localhost:3000) em seu navegador para visualizar o projeto em execução.
 
-To learn more about Next.js, take a look at the following resources:
+## Outros comandos úteis
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Para resetar o banco de dados para seu estado inicial:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+```bash
+npm run db:reset
+```
 
-## Deploy on Vercel
+__________________
+Parar ou retomar a execução do container do banco de dados:
+```bash
+npm run db:down
+# pára o container
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+npm run db:up
+#retoma a execução do container
+```
