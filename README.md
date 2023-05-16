@@ -39,11 +39,7 @@ volumes:
 Após isso, instale as dependências do projeto:
 
 ```bash
-npm run dev
-# ou
-yarn dev
-# ou
-pnpm dev
+npm install
 ```
 
 Depois, inicie o container do banco de dados com o comando:
