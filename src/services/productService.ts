@@ -37,9 +37,9 @@ export async function getProductsAndAppendNewPrice(priceUpdateRequest: ProductTo
     const productPromise = new Promise(async (resolve) => {
       const product = await findProduct(code, newPrice);
 
-      const validatedProduct = validateProduct(product);
+      const validatedProduct = validateProductUpdate(product);
 
-      if (validatedProduct.errors && validatedProduct.errors.length > 0) {
+      if (validatedProduct.errors.length > 0) {
         hasErrors = true;
       }
 
@@ -54,12 +54,10 @@ export async function getProductsAndAppendNewPrice(priceUpdateRequest: ProductTo
   return { result, error: hasErrors };
 }
 
-function validateProduct(product: ProductToUpdate): ProductToUpdate {
+function validateProductUpdate(product: ProductToUpdate): ProductToUpdate {
   const validatedProduct = product;
   const oldPrice = product.price ?? 0;
-  
   const adjustRate = Math.abs(((product.newPrice - oldPrice) / oldPrice) * 100);
-  console.log(product.name + ' | ' + adjustRate);
 
   if (product.cost && product.newPrice < product.cost) {
     validatedProduct.errors?.push('o preço não pode ser menor que o custo');
