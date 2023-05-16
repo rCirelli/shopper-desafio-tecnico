@@ -22,7 +22,7 @@ function PricesUpdateTable({
           <col width="10%" />
           <col width="10%" />
           <col width="10%" />
-          {isError ? <col width="10%" /> : null}
+          {isError ? <col width="40%" /> : null}
         </colgroup>
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b">
           <tr>
@@ -49,7 +49,7 @@ function PricesUpdateTable({
                 scope="row"
                 className="px-6 py-4 font-medium text-gray-900 truncate"
               >
-                {product.name ?? 'N/A'}
+                {product.name || 'N/A'}
               </th>
               <td className="px-6 py-4">
                 {product.price ? currencyFormatter(product.price) : 'N/A'}

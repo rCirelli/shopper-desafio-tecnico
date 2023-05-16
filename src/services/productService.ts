@@ -35,11 +35,15 @@ export async function getProductsAndAppendNewPrice(priceUpdateRequest: ProductTo
     const { code, newPrice } = validateRequest(priceUpdate);
 
     const productPromise = new Promise(async (resolve) => {
-      const product = await findProduct(code);
-      if (product.errors && product.errors.length > 0) {
+      const product = await findProduct(code, newPrice);
+
+      const validatedProduct = validateProduct(product);
+
+      if (validatedProduct.errors && validatedProduct.errors.length > 0) {
         hasErrors = true;
       }
-      resolve({ ...product, newPrice });
+
+      resolve({ ...validatedProduct, newPrice });
     });
 
     productsToUpdate.push(productPromise as Promise<ProductToUpdate>);
@@ -50,7 +54,25 @@ export async function getProductsAndAppendNewPrice(priceUpdateRequest: ProductTo
   return { result, error: hasErrors };
 }
 
-export async function findProduct(code: Product['code']): Promise<Partial<ProductToUpdate>> {
+function validateProduct(product: ProductToUpdate): ProductToUpdate {
+  const validatedProduct = product;
+  const oldPrice = product.price ?? 0;
+  
+  const adjustRate = Math.abs(((product.newPrice - oldPrice) / oldPrice) * 100);
+  console.log(product.name + ' | ' + adjustRate);
+
+  if (product.cost && product.newPrice < product.cost) {
+    validatedProduct.errors?.push('o preço não pode ser menor que o custo');
+  }
+
+  if (product.price && adjustRate > 10) {
+    validatedProduct.errors?.push('o preço não pode ter reajuste de mais de 10%');
+  }
+
+  return validatedProduct;
+}
+
+export async function findProduct(code: Product['code'], newPrice: number): Promise<ProductToUpdate> {
   const product = await prisma.product.findUnique({
     where: {
       code: code,
@@ -59,16 +81,22 @@ export async function findProduct(code: Product['code']): Promise<Partial<Produc
       code: true,
       name: true,
       salePrice: true,
+      costPrice: true,
     }
   });
 
-  if (!product) {
-    return { code: Number(code), errors: ['produto não encontrado'] }
+  const result: ProductToUpdate = {
+    code: Number(code),
+    name: product?.name ?? '',
+    cost: Number(product?.costPrice) ?? 0,
+    price: Number(product?.salePrice) ?? 0,
+    newPrice,
+    errors: [],
   }
 
-  return {
-    code: Number(product.code),
-    name: product.name,
-    price: Number(product.salePrice),
-  };
+  if (!product) {
+    return { ...result, errors: ['produto não encontrado'] }
+  }
+
+  return result;
 }
